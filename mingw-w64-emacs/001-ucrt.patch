@@ -23,7 +23,7 @@
      }
  
    /* Do not close stderr if addresses are being sanitized, as the
-@@ -2702,7 +2704,11 @@
+@@ -2702,7 +2704,12 @@
    if (err | (ADDRESS_SANITIZER
  	     ? fflush (stderr) != 0 || ferror (stderr)
  	     : close_stream (stderr) != 0))
@@ -32,6 +32,7 @@
 +#else
 +    ;
 +#endif
++#endif /* __ANDROID__ */
  }
  
  #ifndef DOS_NT

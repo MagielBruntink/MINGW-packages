@@ -7,8 +7,8 @@ _sanity_check=$([[ "${MSYSTEM}" != MINGW* ]] || echo yes)
 _realname=emacs
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=29.3
-pkgrel=2
+pkgver=30.50
+pkgrel=1
 pkgdesc="The extensible, customizable, self-documenting, real-time display editor (mingw-w64)"
 arch=('any')
 mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
@@ -40,7 +40,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
 # Don't zip info files because the built-in info reader uses gzip to
 # decompress them. gzip is not available as a mingw binary.
 options=('!zipman')
-source=("https://ftp.gnu.org/gnu/${_realname}/${_realname}-${pkgver}.tar.xz"{,.sig}
+source=("https://github.com/emacs-mirror/emacs/archive/refs/heads/master.zip"
         "001-ucrt.patch"
         "002-clang-fixes.patch"
         "003-aarch64-fixes.patch"
@@ -58,6 +58,7 @@ validpgpkeys=('28D3BED851FDF3AB57FEF93C233587A47C207910'
               'CEA1DE21AB108493CC9C65742E82323B8F4353EE')
 
 prepare() {
+  mv "emacs-master" "${_realname}-${pkgver}"  
   cp "${srcdir}/emacs-ARM64.manifest" "${_realname}-${pkgver}/nt"
 
   cd "${_realname}-${pkgver}"
@@ -99,15 +100,15 @@ build() {
 
   # 001-ucrt.patch breaks stdout, causing make sanity-check to fail
   if [[ "$_sanity_check" == "yes" ]] ; then
-    make
+    make -j 8
   else
-    make actual-all
+    make -j 8 actual-all
   fi
 }
 
 package() {
   cd "build-${MSYSTEM}"
-  make DESTDIR="${pkgdir}" install
+  make -j 8 DESTDIR="${pkgdir}" install
   rm -f "${pkgdir}${MINGW_PREFIX}/bin/ctags.exe"
   rm -f "${pkgdir}${MINGW_PREFIX}/share/man/man1/ctags.1.gz"
 
